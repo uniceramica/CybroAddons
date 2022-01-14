@@ -1,5 +1,5 @@
 from odoo import models,fields,api
-
+import re
 
 class ProductBrand(models.Model):
     _inherit = 'product.template'
@@ -25,10 +25,8 @@ class BrandPivot(models.Model):
     brand_id=fields.Many2one ('product.brand' ,string='Brand')
 
     def _query(self):
-        res= super(BrandPivot, self)._query()
-        query = res.split('t.categ_id as categ_id,',1)
-        query= query[0]+'t.categ_id as categ_id,t.brand_id as brand_id,' +query[1]
-        split= query.split('t.categ_id,',1)
-        res = split[0] + 't.categ_id,t.brand_id,' + split[1]
+        res = super(BrandPivot, self)._query()
+        res = re.sub(re.escape("t.categ_id as categ_id,"), "t.categ_id as categ_id,\n\tt.brand_id as brand_id,", res, flags=re.IGNORECASE)
+        res = res.replace("t.categ_id,","t.categ_id,\n\tt.brand_id,",2)
         return res
 
